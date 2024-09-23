@@ -9,12 +9,26 @@ pipeline {
                 git(
                     url: "https://github.com/seanbaraka/gallery",
                     branch: "master"
-                    )
+                )
             }
         }
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
+            }
+        }
+        stage("Run Tests") {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'MONGODB_URI', variable: 'MONGODB_URI')]) {
+                        try {
+                            sh 'MONGODB_URI=$MONGODB_URI npm test'
+                        } catch (Exception e) {
+                            currentBuild.result = 'FAILURE'
+                            error("Node.js tests failed")
+                        }
+                    }
+                }
             }
         }
         stage('Deploy to Render.com') {
