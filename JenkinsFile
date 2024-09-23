@@ -46,6 +46,13 @@ pipeline {
     post {
         success {
             echo 'Deployment to Render.com successful!'
+            withCredentials([string(credentialsId: 'RENDER_DEPLOYMENT_URI', variable: 'RENDER_DEPLOYMENT_URI')]) {
+                slackSend (
+                    channel: '#baraka_ip1',
+                    color: 'good',
+                    message: "Deployment successful! Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'. Deployment URL: ${RENDER_DEPLOYMENT_URI}"
+                )
+            }
         }
         failure {
             emailext (
