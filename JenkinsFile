@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    tools {
+        nodejs "nodejs"
+    }
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git(
+                    url: "https://github.com/seanbaraka/gallery",
+                    branch: "master"
+                    )
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage('Deploy to Render.com') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: '0fe726cf-c66b-4b9c-80e2-d54b181f5a4c', variable: 'RENDER_DEPLOY_HOOK_URL')]) {
+                        sh '''
+                            curl -X POST $RENDER_DEPLOY_HOOK_URL
+                        '''
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Deployment to Render.com successful!'
+        }
+        failure {
+            echo 'Deployment to Render.com failed!'
+        }
+    }
+}
