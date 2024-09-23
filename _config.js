@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 var config = {};
 
 // Update to have your correct username and password
